@@ -1,0 +1,207 @@
+<app-toolbar title="My Preference Form" root="Student"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <div class="lock-banner" *ngIf="isLocked">
+      <mat-icon>lock</mat-icon>
+      <span>Your form has been <strong>approved and locked</strong>. No further edits are permitted.</span>
+    </div>
+
+    <div class="correction-banner" *ngIf="!isLocked && isResubmit()">
+      <mat-icon>rate_review</mat-icon>
+      <div>
+        <strong>Correction Requested</strong> — Please review and resubmit.
+        <span *ngIf="adminRemarks"> Admin notes: "<em>{{ adminRemarks }}</em>"</span>
+      </div>
+    </div>
+
+    <div class="autosave-bar" *ngIf="!isLocked">
+      <mat-icon>cloud_done</mat-icon>
+      <span>{{ autoSaveMsg() || 'Changes auto-save every 3 seconds' }}</span>
+      <mat-spinner diameter="14" *ngIf="saving()"></mat-spinner>
+    </div>
+
+    <div class="page-header">
+      <h1>{{ isResubmit() ? 'Resubmit Corrected Form' : 'MDM Subject Preference Form' }}</h1>
+      <p>Branch: <strong>{{ branch() }}</strong> &nbsp;|&nbsp; Version: <strong>{{ (existingForm()?.version || 1) }}</strong></p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="form-section">
+        <span class="section-title">Personal Details</span>
+        <div class="form-grid">
+          
+          <mat-form-field appearance="outline">
+            <mat-label>Permanent Registration Number (PRN)</mat-label>
+            <input matInput formControlName="prn" />
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-hint>Verified Institutional Identity Key</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>First Name *</mat-label>
+            <input matInput formControlName="first_name" [readonly]="isLocked" />
+            <mat-error *ngIf="fieldError('first_name','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('first_name','invalidName')">Alphabets only</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Middle Name</mat-label>
+            <input matInput formControlName="middle_name" [readonly]="isLocked" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name *</mat-label>
+            <input matInput formControlName="last_name" [readonly]="isLocked" />
+            <mat-error *ngIf="fieldError('last_name','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('last_name','invalidName')">Alphabets only</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Father's Name *</mat-label>
+            <input matInput formControlName="father_name" [readonly]="isLocked" />
+            <mat-error *ngIf="fieldError('father_name','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('father_name','invalidName')">Alphabets only</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email Address *</mat-label>
+            <input matInput type="email" formControlName="email" [readonly]="isLocked" />
+            <mat-error *ngIf="fieldError('email','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('email','email')">Invalid email</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Student Mobile *</mat-label>
+            <input matInput formControlName="student_mobile" maxlength="10" [readonly]="isLocked" />
+            <mat-hint>10 digits, starts with 6–9</mat-hint>
+            <mat-error *ngIf="fieldError('student_mobile','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('student_mobile','invalidMobile')">Must be 10 digits starting with 6–9</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Parent Mobile *</mat-label>
+            <input matInput formControlName="parent_mobile" maxlength="10" [readonly]="isLocked" />
+            <mat-hint>10 digits, starts with 6–9</mat-hint>
+            <mat-error *ngIf="fieldError('parent_mobile','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('parent_mobile','invalidMobile')">Must be 10 digits starting with 6–9</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <span class="section-title">Academic Details</span>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Percentage *</mat-label>
+            <input matInput type="number" formControlName="percentage" min="0" max="100" [readonly]="isLocked" />
+            <mat-hint>0 – 100</mat-hint>
+            <mat-error *ngIf="fieldError('percentage','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('percentage','min') || fieldError('percentage','max')">Must be 0–100</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>SGPA *</mat-label>
+            <input matInput type="number" formControlName="sgpa" min="0" max="10" step="0.01" [readonly]="isLocked" />
+            <mat-hint>0.0 – 10.0</mat-hint>
+            <mat-error *ngIf="fieldError('sgpa','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('sgpa','min') || fieldError('sgpa','max')">Must be 0–10</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CGPA *</mat-label>
+            <input matInput type="number" formControlName="cgpa" min="0" max="10" step="0.01" [readonly]="isLocked" />
+            <mat-hint>0.0 – 10.0</mat-hint>
+            <mat-error *ngIf="fieldError('cgpa','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('cgpa','min') || fieldError('cgpa','max')">Must be 0–10</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Active Backlogs *</mat-label>
+            <input matInput type="number" formControlName="backlogs" min="0" [readonly]="isLocked" />
+            <mat-hint>0 or more</mat-hint>
+            <mat-error *ngIf="fieldError('backlogs','required')">Required</mat-error>
+            <mat-error *ngIf="fieldError('backlogs','min')">Cannot be negative</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <span class="section-title">MDM Subject Preferences</span>
+        <p class="pref-note">
+          <mat-icon>info</mat-icon>
+          Select 3 unique subjects eligible for your branch. Each preference must be different.
+        </p>
+
+        <div class="eligible-chips">
+          <span class="eligible-label">Eligible subjects:</span>
+          <span *ngFor="let s of eligibleSubjects()" class="e-chip">{{ s }}</span>
+        </div>
+
+        <div class="pref-error" *ngIf="hasDuplicates && form.touched">
+          <mat-icon>warning</mat-icon> All three preferences must be different subjects.
+        </div>
+
+        <div class="pref-grid">
+          <div class="pref-item">
+            <span class="pref-label">1st Preference</span>
+            <mat-form-field appearance="outline" class="pref-field">
+              <mat-label>Select Subject *</mat-label>
+              <mat-select formControlName="preference_1">
+                <mat-option *ngFor="let s of eligibleSubjects()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="fieldError('preference_1','required')">Required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="pref-item">
+            <span class="pref-label">2nd Preference</span>
+            <mat-form-field appearance="outline" class="pref-field">
+              <mat-label>Select Subject *</mat-label>
+              <mat-select formControlName="preference_2">
+                <mat-option *ngFor="let s of eligibleSubjects()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="fieldError('preference_2','required')">Required</mat-error>
+              <mat-error *ngIf="form.get('preference_2')?.hasError('duplicateWith')">
+                Please select a different subject. Same as Preference {{ getDuplicateTarget('preference_2') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="pref-item">
+            <span class="pref-label">3rd Preference</span>
+            <mat-form-field appearance="outline" class="pref-field">
+              <mat-label>Select Subject *</mat-label>
+              <mat-select formControlName="preference_3">
+                <mat-option *ngFor="let s of eligibleSubjects()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="fieldError('preference_3','required')">Required</mat-error>
+              <mat-error *ngIf="form.get('preference_3')?.hasError('duplicateWith')">
+                Please select a different subject. Same as Preference {{ getDuplicateTarget('preference_3') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions" *ngIf="!isLocked">
+        <button mat-stroked-button type="button" (click)="saveDraft()" [disabled]="saving() || submitting() || form.invalid">
+          <mat-spinner diameter="16" *ngIf="saving()"></mat-spinner>
+          <mat-icon *ngIf="!saving()">save</mat-icon>
+          {{ saving() ? 'Saving…' : 'Save Draft' }}
+        </button>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="submitting() || saving() || form.invalid">
+          <mat-spinner diameter="16" *ngIf="submitting()"></mat-spinner>
+          <mat-icon *ngIf="!submitting()">{{ isResubmit() ? 'replay' : 'send' }}</mat-icon>
+          {{ submitting() ? 'Submitting…' : (isResubmit() ? 'Resubmit Form' : 'Submit Form') }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</div>

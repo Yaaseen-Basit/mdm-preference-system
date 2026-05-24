@@ -1,0 +1,217 @@
+<app-toolbar title="Dashboard" root="Admin"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <!-- Loading -->
+  <div class="loading-overlay" *ngIf="loading()">
+    <div class="loader-box">
+      <mat-spinner diameter="44"></mat-spinner>
+      <span>Loading analytics…</span>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading() && stats()">
+    <!-- Page Header -->
+   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <div>
+    <h1>Analytics Overview</h1>
+    <p>Real-time MDM subject preference allocation metrics</p>
+  </div>
+  <div style="display: flex; gap: 12px;">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="downloadStudentPreferencesCsv()"
+      [disabled]="loading()"
+      style="font-family: 'DM Sans', sans-serif; font-weight: 500; display: flex; align-items: center; gap: 8px;"
+    >
+      <mat-icon>download_for_offline</mat-icon>
+      Download Student Preferences CSV
+    </button>
+  </div>
+</div>
+
+    <!-- Stat Cards Row -->
+    <div class="stats-grid">
+      <div class="stat-card" [routerLink]="['/admin/students']" style="cursor:pointer">
+        <div class="stat-icon" style="background:rgba(0,33,71,0.08)">
+          <mat-icon style="color:#002147">people</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.total_students }}</div>
+          <div class="stat-label">Registered Students</div>
+        </div>
+        <div class="stat-trend up">
+          <mat-icon>arrow_upward</mat-icon> Live
+        </div>
+      </div>
+
+      <div class="stat-card" [routerLink]="['/admin/forms']" style="cursor:pointer">
+        <div class="stat-icon" style="background:rgba(0,194,255,0.1)">
+          <mat-icon style="color:#00C2FF">hourglass_top</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.pending_forms }}</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="stat-trend warn">
+          <mat-icon>schedule</mat-icon> Needs action
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,214,143,0.1)">
+          <mat-icon style="color:#00D68F">check_circle</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.approved_forms }}</div>
+          <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-trend up">
+          <mat-icon>trending_up</mat-icon>
+          {{ completionRate }}% rate
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(255,71,87,0.1)">
+          <mat-icon style="color:#FF4757">cancel</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.rejected_forms }}</div>
+          <div class="stat-label">Rejected</div>
+        </div>
+        <div class="stat-trend down">
+          <mat-icon>remove</mat-icon> Finalized
+        </div>
+      </div>
+
+      <div class="stat-card" [routerLink]="['/admin/corrections']" style="cursor:pointer">
+        <div class="stat-icon" style="background:rgba(245,166,35,0.1)">
+          <mat-icon style="color:#F5A623">rate_review</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.correction_requested }}</div>
+          <div class="stat-label">Corrections Pending</div>
+        </div>
+        <div class="stat-trend warn">
+          <mat-icon>edit</mat-icon> Awaiting student
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(124,58,237,0.1)">
+          <mat-icon style="color:#7C3AED">database</mat-icon>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats()!.total_registry }}</div>
+          <div class="stat-label">Registry Entries</div>
+        </div>
+        <div class="stat-trend up">
+          <mat-icon>upload_file</mat-icon> Uploaded
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Progress -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="progress-title">Overall Approval Completion</span>
+        <span class="progress-pct">{{ completionRate }}%</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="completionRate" color="primary"></mat-progress-bar>
+      <div class="progress-meta">
+        <span>{{ stats()!.approved_forms }} approved of {{ stats()!.total_submitted }} submitted</span>
+        <span>{{ stats()!.total_registry }} total in registry</span>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <!-- Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Form Status Distribution</h3>
+          <span class="chart-sub">All submitted forms</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas #barChart></canvas>
+        </div>
+      </div>
+
+      <!-- Weekly Line Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Weekly Submissions</h3>
+          <span class="chart-sub">Last 7 days</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas #weeklyChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch + Preference Row -->
+    <div class="charts-row">
+      <!-- Doughnut -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Students by Branch</h3>
+          <span class="chart-sub">Distribution</span>
+        </div>
+        <div class="chart-wrap pie-wrap">
+          <canvas #pieChart></canvas>
+        </div>
+      </div>
+
+      <!-- Top Preferences Table -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Top Subject Preferences</h3>
+          <span class="chart-sub">Across all forms</span>
+        </div>
+        <div class="pref-list">
+          <div
+            *ngFor="let p of stats()!.preference_distribution; let i = index"
+            class="pref-row"
+          >
+            <span class="pref-rank">#{{ i + 1 }}</span>
+            <span class="pref-name">{{ p['subject'] }}</span>
+            <div class="pref-bar-wrap">
+              <div
+                class="pref-bar"
+                [style.width.%]="(p['count'] / stats()!.preference_distribution[0]['count']) * 100"
+              ></div>
+            </div>
+            <span class="pref-count">{{ p['count'] }}</span>
+          </div>
+          <div *ngIf="!stats()!.preference_distribution.length" class="empty-pref">
+            No preference data yet
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-card">
+      <div class="chart-header">
+        <h3>Recent Activity</h3>
+        <span class="chart-sub">Latest audit trail events</span>
+      </div>
+      <div class="activity-list">
+        <div *ngFor="let a of stats()!.recent_activity" class="activity-item">
+          <div class="activity-dot" [ngClass]="a['action']"></div>
+          <div class="activity-body">
+            <span class="activity-who">{{ a['changed_by'] }}</span>
+            <span class="activity-action">
+              <span class="status-chip" [ngClass]="a['action']">{{ getStatusLabel(a['action']) }}</span>
+            </span>
+            <span class="activity-time">{{ a['created_at'] | date:'dd MMM, HH:mm' }}</span>
+          </div>
+        </div>
+        <div *ngIf="!stats()!.recent_activity.length" class="empty-activity">
+          No recent activity
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

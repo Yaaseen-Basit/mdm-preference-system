@@ -1,0 +1,84 @@
+<app-toolbar title="Correction History" root="Admin"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <h1>Correction History</h1>
+    <p>Immutable audit trail of all form changes and admin decisions</p>
+  </div>
+
+  <div class="toolbar-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search history…</mat-label>
+      <input 
+        matInput 
+        [ngModel]="search()" 
+        (ngModelChange)="search.set($event)" 
+        placeholder="Name or action" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+    <div class="count-badge">{{ filtered().length }} records</div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && !filtered().length">
+    <mat-icon>history</mat-icon>
+    <h3>No Audit Records</h3>
+    <p>Correction history will appear here once students submit forms.</p>
+  </div>
+
+  <div class="history-list" *ngIf="!loading()">
+    <mat-accordion multi>
+      <mat-expansion-panel *ngFor="let h of filtered()" class="history-panel" [ngClass]="h.action">
+        <mat-expansion-panel-header>
+          <div class="panel-header">
+            <div class="ph-left">
+              <div class="action-dot" [ngClass]="h.action">
+                <mat-icon>{{ h.icon }}</mat-icon>
+              </div>
+              <div class="ph-meta">
+                <span class="ph-action">{{ h.actionLabel }}</span>
+                <span class="ph-who">by {{ h.changed_by_name }}
+                  <span class="role-tag" [ngClass]="h.changed_by_role">{{ h.changed_by_role }}</span>
+                </span>
+              </div>
+            </div>
+            <div class="ph-right">
+              <span class="ph-version">v{{ h.version }}</span>
+              <span class="ph-time">{{ h.created_at | date:'dd MMM yyyy, HH:mm' }}</span>
+              <span class="status-chip" [ngClass]="h.action">{{ h.actionLabel }}</span>
+            </div>
+          </div>
+        </mat-expansion-panel-header>
+
+        <!-- Remarks -->
+        <div class="remark-row" *ngIf="h.remarks">
+          <mat-icon>comment</mat-icon>
+          <span>{{ h.remarks }}</span>
+        </div>
+
+        <!-- Field Changes -->
+        <div class="changes-section" *ngIf="h.changes.length > 0">
+          <div class="changes-title">Field Changes</div>
+          <div class="changes-table">
+            <div class="ct-header">
+              <span>Field</span><span>Before</span><span></span><span>After</span>
+            </div>
+            <div *ngFor="let c of h.changes" class="ct-row">
+              <span class="ct-field">{{ c.field }}</span>
+              <span class="ct-from">{{ c.from }}</span>
+              <mat-icon class="ct-arrow">arrow_forward</mat-icon>
+              <span class="ct-to">{{ c.to }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-changes" *ngIf="!h.old_data && !h.new_data">
+          <mat-icon>info</mat-icon> Initial submission — no previous data to compare.
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

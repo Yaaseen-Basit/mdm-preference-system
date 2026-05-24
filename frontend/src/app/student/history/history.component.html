@@ -1,0 +1,59 @@
+<app-toolbar title="Form History" root="Student"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <h1>Audit History</h1>
+    <p>Complete immutable trail of all changes to your form</p>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && !history().length">
+    <mat-icon>history</mat-icon>
+    <h3>No History Yet</h3>
+    <p>Submit your form to start tracking changes.</p>
+  </div>
+
+  <div class="timeline-container" *ngIf="!loading() && history().length">
+    <div *ngFor="let h of history(); let last = last" class="tl-entry">
+      <!-- Connector -->
+      <div class="tl-left">
+        <div class="tl-dot" [ngClass]="h.action">
+          <mat-icon>{{ getIcon(h.action) }}</mat-icon>
+        </div>
+        <div class="tl-line" *ngIf="!last"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="tl-card">
+        <div class="tl-header">
+          <span class="tl-action" [ngClass]="h.action">{{ getLabel(h.action) }}</span>
+          <span class="tl-version">v{{ h.version }}</span>
+          <span class="tl-time">{{ h.created_at | date:'dd MMM yyyy, HH:mm' }}</span>
+        </div>
+        <div class="tl-meta">
+          <mat-icon>{{ h.changed_by_role === 'admin' ? 'admin_panel_settings' : 'person' }}</mat-icon>
+          {{ h.changed_by_name }}
+          <span class="role-badge" [ngClass]="h.changed_by_role">{{ h.changed_by_role | titlecase }}</span>
+        </div>
+
+        <div class="tl-remark" *ngIf="h.remarks">
+          <mat-icon>comment</mat-icon> {{ h.remarks }}
+        </div>
+
+        <!-- Changed fields comparison -->
+        <div class="changes-table" *ngIf="getChangedFields(h.old_data, h.new_data).length">
+          <div class="changes-title">Field Changes</div>
+          <div *ngFor="let c of getChangedFields(h.old_data, h.new_data)" class="change-row">
+            <span class="cf-field">{{ c.field }}</span>
+            <span class="cf-from">{{ c.from }}</span>
+            <mat-icon class="cf-arrow">arrow_forward</mat-icon>
+            <span class="cf-to">{{ c.to }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

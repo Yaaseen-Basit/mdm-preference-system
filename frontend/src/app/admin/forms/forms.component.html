@@ -1,0 +1,87 @@
+<app-toolbar title="Forms & Review" root="Admin"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <h1>Forms & Review</h1>
+    <p>Review, approve or request corrections on student submissions</p>
+  </div>
+
+  <div class="controls-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search…</mat-label>
+      <input matInput [(ngModel)]="search" (ngModelChange)="applySearch()" placeholder="Name, PRN, branch" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Status Filter</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (ngModelChange)="load()">
+        <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="count-chips">
+      <span class="cc-chip pending">{{ pendingCount }} Pending</span>
+      <span class="cc-chip approved">{{ approvedCount }} Approved</span>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="data-table-container" *ngIf="!loading()">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student</th>
+          <th>PRN</th>
+          <th>Branch</th>
+          <th>Pref 1</th>
+          <th>Pref 2</th>
+          <th>Pref 3</th>
+          <th>CGPA</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of filtered(); let i = index">
+          <td class="idx-cell">{{ i + 1 }}</td>
+          <td>
+            <div class="name-cell">
+              <div class="mini-avatar">{{ (f.student_name || 'S')[0] }}</div>
+              {{ f.student_name }}
+            </div>
+          </td>
+          <td><code>{{ f.prn }}</code></td>
+          <td><span class="branch-tag">{{ f.branch }}</span></td>
+          <td><span class="pref-tag p1">{{ f.preference_1 }}</span></td>
+          <td><span class="pref-tag p2">{{ f.preference_2 }}</span></td>
+          <td><span class="pref-tag p3">{{ f.preference_3 }}</span></td>
+          <td class="cgpa-cell">{{ f.cgpa }}</td>
+          <td><span class="status-chip" [ngClass]="f.status">{{ f.status | titlecase }}</span></td>
+          <td class="date-cell">{{ f.submitted_at | date:'dd MMM yy' }}</td>
+          <td>
+            <button
+              mat-stroked-button
+              (click)="openReview(f)"
+              [disabled]="f.is_locked && f.status === 'approved'"
+              class="review-btn"
+            >
+              <mat-icon>{{ f.is_locked ? 'visibility' : 'rate_review' }}</mat-icon>
+              {{ f.is_locked ? 'View' : 'Review' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filtered().length === 0">
+          <td colspan="11" class="empty-row">
+            <mat-icon>search_off</mat-icon> No forms found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

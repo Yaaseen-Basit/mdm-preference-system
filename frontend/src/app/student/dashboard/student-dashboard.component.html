@@ -1,0 +1,168 @@
+<app-toolbar title="My Dashboard" root="Student"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+      <div class="welcome-left">
+        <div class="welcome-avatar">{{ auth.currentUser()?.full_name?.[0] || 'S' }}</div>
+        <div>
+          <h1>Welcome, {{ auth.currentUser()?.full_name }}!</h1>
+          <p>PRN: <strong>{{ auth.currentUser()?.prn }}</strong> &nbsp;|&nbsp; Branch: <strong>{{ branch() }}</strong></p>
+        </div>
+      </div>
+      <div class="welcome-right">
+        <div class="form-status-badge" [ngClass]="statusClass()">
+          <mat-icon>{{ form() ? 'assignment_turned_in' : 'assignment' }}</mat-icon>
+          {{ form()?.status ? (form()?.status ?? '').replace('_', ' ') : 'No Form Yet' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert: Correction Requested -->
+    <div class="alert-card correction" *ngIf="form()?.status === 'correction_requested'">
+      <mat-icon>rate_review</mat-icon>
+      <div>
+        <strong>Action Required:</strong> Admin has requested corrections.
+        <span *ngIf="form()?.admin_remarks"> Remarks: "{{ form()?.admin_remarks }}"</span>
+      </div>
+      <a routerLink="/student/form" mat-raised-button color="warn" class="fix-btn">Fix Now</a>
+    </div>
+
+    <!-- Alert: Approved -->
+    <div class="alert-card approved" *ngIf="form()?.status === 'approved'">
+      <mat-icon>check_circle</mat-icon>
+      <div><strong>Congratulations!</strong> Your form has been approved and is now locked.</div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-row">
+      <div class="mini-stat">
+        <mat-icon style="color:var(--accent)">school</mat-icon>
+        <div>
+          <span class="ms-value">{{ eligibleSubjects().length }}</span>
+          <span class="ms-label">Eligible Subjects</span>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <mat-icon style="color:var(--warning)">history</mat-icon>
+        <div>
+          <span class="ms-value">{{ history().length }}</span>
+          <span class="ms-label">Audit Events</span>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <mat-icon style="color:var(--success)">format_list_numbered</mat-icon>
+        <div>
+          <span class="ms-value">{{ form()?.version || 0 }}</span>
+          <span class="ms-label">Form Version</span>
+        </div>
+      </div>
+      <div class="mini-stat">
+        <mat-icon [style.color]="form()?.is_locked ? 'var(--danger)' : 'var(--success)'">
+          {{ form()?.is_locked ? 'lock' : 'lock_open' }}
+        </mat-icon>
+        <div>
+          <span class="ms-value">{{ form()?.is_locked ? 'Locked' : 'Open' }}</span>
+          <span class="ms-label">Form State</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- Left Column: Workflow Progress & Subjects -->
+      <div class="left-col">
+        <!-- Progress Steps -->
+        <div class="card mb-4">
+          <div class="card-title"><mat-icon>timeline</mat-icon> Form Workflow Progress</div>
+          <div class="stepper">
+            <!-- FIXED: The structural loop wrapper now fully encloses the children elements safely -->
+            <div *ngFor="let step of statusSteps(); let last = last" class="step-row">
+              <div class="step-indicator" [class.done]="step.done" [class.active]="step.active">
+                <mat-icon>{{ step.done ? 'check_circle' : (step.active ? 'radio_button_checked' : 'radio_button_unchecked') }}</mat-icon>
+              </div>
+              <div class="step-body">
+                <span class="step-label" [class.done]="step.done" [class.active]="step.active">{{ step.label }}</span>
+              </div>
+              <div class="step-line" *ngIf="!last"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eligible Subjects -->
+        <div class="card">
+          <div class="card-title"><mat-icon>subject</mat-icon> Eligible MDM Subjects</div>
+          <p class="card-sub">Based on your branch: <strong>{{ branch() }}</strong></p>
+          <div class="subject-chips">
+            <span *ngFor="let s of eligibleSubjects()" class="subject-chip">{{ s }}</span>
+            <span *ngIf="!eligibleSubjects().length" class="empty-msg">No eligible subjects found</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Form Summary & Recent Activity -->
+      <div class="right-col">
+        <div class="card mb-4" *ngIf="form(); else noForm">
+          <div class="card-title"><mat-icon>assignment</mat-icon> Form Summary</div>
+          <div class="form-summary">
+            <div class="fs-row">
+              <span class="fs-key">Status</span>
+              <span class="status-chip" [ngClass]="form()?.status">{{ form()?.status | titlecase }}</span>
+            </div>
+            <div class="fs-row"><span class="fs-key">Preference 1</span><span class="fs-val pref">{{ form()!.preference_1 }}</span></div>
+            <div class="fs-row"><span class="fs-key">Preference 2</span><span class="fs-val pref">{{ form()!.preference_2 }}</span></div>
+            <div class="fs-row"><span class="fs-key">Preference 3</span><span class="fs-val pref">{{ form()!.preference_3 }}</span></div>
+            <div class="fs-row"><span class="fs-key">CGPA</span><span class="fs-val">{{ form()!.cgpa }}</span></div>
+            <div class="fs-row"><span class="fs-key">Percentage</span><span class="fs-val">{{ form()!.percentage }}%</span></div>
+            <div class="fs-row" *ngIf="form()!.submitted_at">
+              <span class="fs-key">Submitted</span>
+              <span class="fs-val">{{ form()!.submitted_at | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+            <div class="fs-row" *ngIf="form()!.admin_remarks">
+              <span class="fs-key">Admin Note</span>
+              <span class="fs-val remark">{{ form()!.admin_remarks }}</span>
+            </div>
+          </div>
+       
+          <div class="form-actions" *ngIf="canEdit()">
+            <a routerLink="/student/form" mat-raised-button color="primary">
+              <mat-icon>edit</mat-icon>
+              {{ form()!.status === 'correction_requested' ? 'Resubmit Corrections' : 'Edit Form' }}
+            </a>
+          </div>
+        </div>
+
+        <ng-template #noForm>
+          <div class="card no-form-card mb-4">
+            <mat-icon class="nf-icon">assignment_add</mat-icon>
+            <h3>No Form Submitted Yet</h3>
+            <p>Fill in your MDM subject preferences to get started.</p>
+            <a routerLink="/student/form" mat-raised-button color="primary">
+              <mat-icon>add</mat-icon> Start My Form
+            </a>
+          </div>
+        </ng-template>
+
+        <!-- Recent History -->
+        <div class="card">
+          <div class="card-title"><mat-icon>history</mat-icon> Recent Activity</div>
+          <div class="timeline" *ngIf="history().length">
+            <div *ngFor="let h of history().slice(0, 5)" class="timeline-item">
+              <div class="timeline-content">
+                <div class="timeline-action" [ngClass]="h.action">{{ getActionLabel(h.action) }}</div>
+                <div class="timeline-meta">by {{ h.changed_by_name }} · {{ h.created_at | date:'dd MMM, HH:mm' }}</div>
+                <div class="timeline-remark" *ngIf="h.remarks">{{ h.remarks }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="empty-msg" *ngIf="!history().length">No activity yet.</div>
+          <a routerLink="/student/history" class="view-all-link" *ngIf="history().length > 5">View full history →</a>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

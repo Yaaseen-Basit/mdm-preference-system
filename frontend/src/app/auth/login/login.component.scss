@@ -1,0 +1,209 @@
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-left {
+  flex: 1;
+  background: var(--primary);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 900px) { display: none; }
+}
+
+.brand-section { position: relative; z-index: 2; }
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+.brand-icon { font-size: 40px; }
+.brand-name {
+  display: block;
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 4px;
+}
+.brand-tagline {
+  display: block;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: -4px;
+}
+
+.hero-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: white;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.accent { color: var(--accent); }
+
+.hero-desc {
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  max-width: 420px;
+  margin-bottom: 40px;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 400;
+}
+.feature-icon { font-size: 20px; }
+
+.decorative-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,194,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,194,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.auth-right {
+  width: 520px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    padding: 24px 16px;
+  }
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 36px;
+  animation: fadeIn 0.4s ease;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+  h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+  p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 6px;
+  }
+}
+
+.login-tabs {
+  ::ng-deep .mat-mdc-tab-labels {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    margin-bottom: 4px;
+  }
+  ::ng-deep .mat-mdc-tab {
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  ::ng-deep .mdc-tab--active { background: white; }
+}
+
+.login-form {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.credential-hint {
+  background: rgba(0,194,255,0.08);
+  border: 1px solid rgba(0,194,255,0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  code {
+    font-family: 'Space Mono', monospace;
+    color: var(--primary);
+    font-size: 12px;
+    background: rgba(0,33,71,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+.hint-label { font-weight: 600; color: var(--primary); }
+
+.new-user-link {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 12px;
+  a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.full-width { width: 100%; }
+
+.login-btn {
+  width: 100%;
+  height: 48px !important;
+  margin-top: 12px !important;
+  font-size: 15px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,75 @@
+<app-toolbar title="Student Management" root="Admin"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <h1>Student Management</h1>
+    <p>All registered students and their form status</p>
+  </div>
+
+  <div class="summary-row">
+    <div class="sum-chip"><mat-icon>people</mat-icon> {{ students().length }} Total</div>
+    <div class="sum-chip green"><mat-icon>check_circle</mat-icon> {{ totalApproved }} Approved</div>
+    <div class="sum-chip blue"><mat-icon>hourglass_top</mat-icon> {{ totalPending }} Pending</div>
+    <div class="sum-chip grey"><mat-icon>pending_actions</mat-icon> {{ totalNoForm }} No Form</div>
+  </div>
+
+  <div class="toolbar-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search students…</mat-label>
+      <input matInput [(ngModel)]="search" (ngModelChange)="onSearch()" placeholder="Name, PRN, email, branch" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="data-table-container" *ngIf="!loading()">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student Name</th>
+          <th>PRN</th>
+          <th>Email</th>
+          <th>Branch</th>
+          <th>Form Status</th>
+          <th>Registered</th>
+          <th>Active</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of filtered(); let i = index">
+          <td class="idx">{{ i + 1 }}</td>
+          <td>
+            <div class="name-cell">
+              <div class="avatar">{{ s.full_name[0] }}</div>
+              <span>{{ s.full_name }}</span>
+            </div>
+          </td>
+          <td><code>{{ s.prn }}</code></td>
+          <td class="email-cell">{{ s.email }}</td>
+          <td><span class="branch-tag">{{ s.branch }}</span></td>
+          <td>
+            <span class="status-chip" [ngClass]="statusClass(s.form_status)">
+              {{ s.form_status || 'No form' }}
+            </span>
+          </td>
+          <td class="date-cell">{{ s.created_at | date:'dd MMM yyyy' }}</td>
+          <td>
+            <mat-icon [style.color]="s.is_active ? 'var(--success)' : 'var(--danger)'">
+              {{ s.is_active ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </td>
+        </tr>
+        <tr *ngIf="filtered().length === 0">
+          <td colspan="8" class="empty-row">
+            <mat-icon>search_off</mat-icon>
+            <span>No students found</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,122 @@
+<app-toolbar title="Registry Upload" root="Admin"></app-toolbar>
+
+<div class="page-container animate-fade-in">
+  <div class="page-header">
+    <h1>Student Registry</h1>
+    <p>Upload the master CSV roster to enable student registration</p>
+  </div>
+
+  <!-- Upload Panel -->
+  <div class="upload-card">
+    <div class="upload-header">
+      <mat-icon>upload_file</mat-icon>
+      <div>
+        <h3>Upload Registry CSV</h3>
+        <p>CSV must contain columns: Sr.No., Name of the Students, PRN NO, Branch</p>
+      </div>
+      <button mat-stroked-button (click)="downloadSampleCsv()" class="sample-btn">
+        <mat-icon>download</mat-icon> Sample CSV
+      </button>
+    </div>
+
+    <!-- Drop Zone -->
+    <div
+      class="drop-zone"
+      [class.drag-over]="dragOver()"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+      (click)="fileInput.click()"
+    >
+      <input #fileInput type="file" accept=".csv,.xlsx,.xls" (change)="onFileSelect($event)" style="display:none" />
+      <div class="dz-content" *ngIf="!uploading()">
+        <mat-icon class="dz-icon">cloud_upload</mat-icon>
+        <p class="dz-primary">Drag & drop your CSV here</p>
+        <p class="dz-secondary">or click to browse files</p>
+        <span class="dz-format">Accepted format: .csv only</span>
+      </div>
+      <div class="dz-uploading" *ngIf="uploading()">
+        <mat-spinner diameter="36"></mat-spinner>
+        <p>Processing CSV…</p>
+      </div>
+    </div>
+
+    <!-- Upload Result -->
+    <div class="upload-result" *ngIf="uploadResult()">
+      <div class="result-row success">
+        <mat-icon>check_circle</mat-icon>
+        <span><strong>{{ uploadResult()!.inserted }}</strong> records inserted</span>
+      </div>
+      <div class="result-row warn">
+        <mat-icon>skip_next</mat-icon>
+        <span><strong>{{ uploadResult()!.skipped }}</strong> records skipped (duplicates)</span>
+      </div>
+      <div *ngIf="uploadResult()!.errors.length" class="result-errors">
+        <div class="result-row error" *ngFor="let e of uploadResult()!.errors">
+          <mat-icon>warning</mat-icon> {{ e }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row" *ngIf="!loading()">
+    <div class="stat-pill total"><mat-icon>people</mat-icon> {{ registry().length }} Total</div>
+    <div class="stat-pill registered"><mat-icon>how_to_reg</mat-icon> {{ totalRegistered }} Registered</div>
+    <div class="stat-pill pending"><mat-icon>pending_actions</mat-icon> {{ totalUnregistered }} Pending</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search registry…</mat-label>
+      <input matInput [(ngModel)]="search" (ngModelChange)="onSearch()" placeholder="Name, PRN, branch" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <!-- Table -->
+  <div class="loading-overlay" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="data-table-container" *ngIf="!loading()">
+    <table>
+      <thead>
+        <tr>
+          <th>Sr. No.</th>
+          <th>Name</th>
+          <th>PRN</th>
+          <th>Branch</th>
+          <th>Status</th>
+          <th>Uploaded</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filtered()">
+          <td>{{ r.sr_no || '—' }}</td>
+          <td>
+            <div class="name-cell">
+              <div class="mini-av" [class.registered]="r.is_registered">{{ r.name[0] }}</div>
+              {{ r.name }}
+            </div>
+          </td>
+          <td><code>{{ r.prn }}</code></td>
+          <td><span class="branch-tag">{{ r.branch }}</span></td>
+          <td>
+            <span class="reg-badge" [class.done]="r.is_registered">
+              <mat-icon>{{ r.is_registered ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              {{ r.is_registered ? 'Registered' : 'Pending' }}
+            </span>
+          </td>
+          <td class="date-cell">{{ r.uploaded_at | date:'dd MMM yyyy' }}</td>
+        </tr>
+        <tr *ngIf="filtered().length === 0">
+          <td colspan="6" class="empty-row">
+            <mat-icon>search_off</mat-icon> No registry entries found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="brand-logo">
+      <span class="brand-icon">🎓</span>
+      <div class="brand-text">
+        <span class="brand-name">MDM</span>
+        <span class="brand-tagline">Smart Allocation System</span>
+      </div>
+    </div>
+    <h1 class="hero-title">Student<br><span class="accent">Registration</span></h1>
+    <p class="hero-desc">Register with your PRN to access the subject preference allocation portal. Your PRN must exist in the admin registry.</p>
+    <div class="steps-guide">
+      <div class="step-item active">
+        <span class="step-num">1</span>
+        <span>Enter your PRN from registry</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <span>Fill your personal details</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <span>Submit your preferences</span>
+      </div>
+    </div>
+    <div class="decorative-grid"></div>
+  </div>
+
+  <div class="auth-right">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Create Account</h2>
+        <p>Register as a new student</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="register()" class="reg-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>PRN Number</mat-label>
+          <input matInput formControlName="prn" placeholder="e.g. MDM2024001" autocomplete="off" />
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-hint>Your PRN from the college registry</mat-hint>
+          <mat-error *ngIf="form.get('prn')?.hasError('required')">PRN is required</mat-error>
+          <mat-error *ngIf="form.get('prn')?.hasError('minlength')">PRN too short</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="full_name" placeholder="As per college records" />
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="form.get('full_name')?.hasError('required')">Name is required</mat-error>
+          <mat-error *ngIf="form.get('full_name')?.hasError('pattern')">Alphabets only</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="your@email.com" />
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">Enter valid email</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-hint>Minimum 6 characters</mat-hint>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">Password required</mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('minlength')">Min 6 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput [type]="hideConfirm() ? 'password' : 'text'" formControlName="confirm_password" />
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hideConfirm.set(!hideConfirm())">
+            <mat-icon>{{ hideConfirm() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.hasError('passwordMismatch') && form.get('confirm_password')?.touched">
+            Passwords do not match
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="login-btn"
+          [disabled]="form.invalid || loading()"
+        >
+          <mat-spinner diameter="18" *ngIf="loading()"></mat-spinner>
+          <mat-icon *ngIf="!loading()">how_to_reg</mat-icon>
+          {{ loading() ? 'Registering...' : 'Create Account' }}
+        </button>
+
+        <div class="back-link">
+          Already registered? <a routerLink="/auth/login">Sign in →</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

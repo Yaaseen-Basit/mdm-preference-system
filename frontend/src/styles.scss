@@ -1,0 +1,200 @@
+@use '@angular/material' as mat;
+
+// ── Material Core ──────────────────────────────────────────────────────────
+@include mat.core();
+
+$mdm-primary: mat.define-palette(mat.$indigo-palette, 900);
+$mdm-accent:  mat.define-palette(mat.$cyan-palette, 600);
+$mdm-warn:    mat.define-palette(mat.$red-palette, 600);
+
+$mdm-theme: mat.define-light-theme((
+  color: (
+    primary: $mdm-primary,
+    accent:  $mdm-accent,
+    warn:    $mdm-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: '"DM Sans", sans-serif',
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($mdm-theme);
+
+// ── Google Fonts ───────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+// ── Brand Variables ────────────────────────────────────────────────────────
+:root {
+  --primary:        #002147;
+  --primary-light:  #003275;
+  --accent:         #00C2FF;
+  --accent-dark:    #0099CC;
+  --success:        #00D68F;
+  --warning:        #F5A623;
+  --danger:         #FF4757;
+  --orange:         #FF6B35;
+  --bg:             #F0F4F8;
+  --bg-dark:        #E2E8F0;
+  --surface:        #FFFFFF;
+  --surface-2:      #F8FAFC;
+  --text-primary:   #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted:     #718096;
+  --border:         #E2E8F0;
+  --border-dark:    #CBD5E0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  --radius:    12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --sidebar-width: 260px;
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Material Button Overrides ──────────────────────────────────────────────
+.mat-mdc-raised-button.mat-primary {
+  background-color: var(--primary) !important;
+  border-radius: 8px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+}
+.mat-mdc-raised-button.mat-accent {
+  background-color: var(--accent) !important;
+  color: var(--primary) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+.mat-mdc-stroked-button { border-radius: 8px !important; }
+.mat-mdc-icon-button     { border-radius: 8px !important; }
+
+.mat-mdc-form-field { font-family: 'DM Sans', sans-serif !important; }
+.mat-mdc-card { border-radius: var(--radius) !important; }
+
+// ── Material Tab overrides ─────────────────────────────────────────────────
+.mat-mdc-tab-group .mat-mdc-tab-header { border-bottom: 1px solid var(--border); }
+
+// ── Status Chips ───────────────────────────────────────────────────────────
+.status-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px;
+  font-weight: 700; text-transform: capitalize; letter-spacing: 0.3px;
+  white-space: nowrap;
+  &.draft                { background: #EDF2F7; color: #4A5568; }
+  &.submitted            { background: #EBF8FF; color: #1a6fa8; }
+  &.approved             { background: #F0FFF4; color: #1a6649; }
+  &.rejected             { background: #FFF5F5; color: #a02020; }
+  &.correction_requested { background: #FFFAF0; color: #9a4e0a; }
+}
+
+// ── Snackbar Panel Classes ─────────────────────────────────────────────────
+.snack-success .mdc-snackbar__surface {
+  background: #002147 !important; border-left: 4px solid #00D68F !important;
+  .mdc-snackbar__label { color: white !important; }
+  .mat-mdc-button { color: #00D68F !important; }
+}
+.snack-error .mdc-snackbar__surface {
+  background: #2d1b1b !important; border-left: 4px solid #FF4757 !important;
+  .mdc-snackbar__label { color: #ffdde0 !important; }
+  .mat-mdc-button { color: #FF4757 !important; }
+}
+.snack-info .mdc-snackbar__surface {
+  background: #001d40 !important; border-left: 4px solid #00C2FF !important;
+  .mdc-snackbar__label { color: white !important; }
+  .mat-mdc-button { color: #00C2FF !important; }
+}
+.snack-warn .mdc-snackbar__surface {
+  background: #2d2410 !important; border-left: 4px solid #F5A623 !important;
+  .mdc-snackbar__label { color: #fff8e7 !important; }
+  .mat-mdc-button { color: #F5A623 !important; }
+}
+
+// ── Layout Utilities ───────────────────────────────────────────────────────
+.page-container { padding: 24px; @media (max-width: 768px) { padding: 16px; } }
+.page-header {
+  margin-bottom: 24px;
+  h1 { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+  p  { color: var(--text-muted); margin-top: 4px; font-size: 13px; }
+}
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm); padding: 20px;
+}
+
+// ── Table ──────────────────────────────────────────────────────────────────
+.data-table-container {
+  overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  table {
+    width: 100%; border-collapse: collapse;
+    thead tr { background: var(--primary); }
+    thead th {
+      color: white; padding: 13px 14px; text-align: left;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border); transition: background 0.12s;
+      &:hover { background: var(--bg); }
+      &:last-child { border-bottom: none; }
+    }
+    tbody td { padding: 12px 14px; font-size: 13px; }
+  }
+}
+
+// ── Loading Overlay ────────────────────────────────────────────────────────
+.loading-overlay {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px; width: 100%;
+}
+
+// ── Timeline ───────────────────────────────────────────────────────────────
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+  width: 2px; background: var(--border);
+}
+.timeline-item {
+  position: relative; margin-bottom: 16px;
+  &::before {
+    content: ''; position: absolute; left: -20px; top: 6px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+}
+.timeline-content {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+}
+.timeline-action { font-weight: 700; font-size: 13px; color: var(--primary); text-transform: capitalize; }
+.timeline-meta   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+// ── Animations ─────────────────────────────────────────────────────────────
+@keyframes fadeIn  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideIn { from { transform:translateX(-20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes pulse   { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+.animate-fade-in  { animation: fadeIn  0.35s ease forwards; }
+.animate-slide-in { animation: slideIn 0.3s  ease forwards; }
+
+// ── Scrollbar ──────────────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
