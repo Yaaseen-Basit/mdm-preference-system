@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,7 @@ import { MatBadgeModule } from '@angular/material/badge';
           <span class="dot"></span>
           System Online
         </div>
-        <div class="time">{{ currentTime }}</div>
+        <div class="time">{{ timeString() }}</div>
       </div>
     </header>
   `,
@@ -84,11 +84,29 @@ import { MatBadgeModule } from '@angular/material/badge';
     }
   `]
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnInit, OnDestroy {
   @Input() title = '';
   @Input() root = 'MDM System';
 
-  get currentTime(): string {
+  //  1. Declare a signal with an initial timestamp state
+  timeString = signal<string>(this.getFormattedTime());
+  private timerId: any;
+
+  ngOnInit(): void {
+    // 2. Set up a predictable timer loop that updates the signal
+    this.timerId = setInterval(() => {
+      this.timeString.set(this.getFormattedTime());
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    // 3. Always clean up resource intervals to prevent memory leaks
+    if (this.timerId) {
+      clearInterval(this.timerId);
+    }
+  }
+
+  private getFormattedTime(): string {
     return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
   }
 }

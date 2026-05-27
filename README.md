@@ -1,10 +1,15 @@
 # MDM Smart Allocation System
-
-> Enterprise-grade collegiate ERP platform for MDM subject preference allocation, student onboarding, admin approval workflows, and audit trail management.
-
+## Developed by Yaaseen Basit.
+> An enterprise-grade, collegiate ERP platform architected to manage Multidisciplinary Minor (MDM) preferences, structural track allocations, and compliance checks under the National Education Policy (NEP) framework. The platform automates student onboarding, enforces multi-semester prerequisite tracking, provides a reactive form state machine, and logs actions to an immutable administrative audit ledger.
 ---
 
+## 📐 System Architecture & MDM Allocation Engine
 
+The platform isolates clients and API resources to maximize throughput and guarantee predictable data consistency across the multi-stage preference lifecycle.
+
+<p align="center">
+  <img src="./Architecture-MDM-App.png" alt="System Architecture Diagram" width="800">
+</p>
 
 ---
 

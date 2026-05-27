@@ -98,4 +98,11 @@ export class ApiService {
   getFormsData(): Observable<FormData[]> {
   return this.http.get<FormData[]>(`${this.base}/api/admin/forms`);
 }
+
+requestPasswordReset(prn: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.base}/api/auth/forgot-password`, { 
+    prn, 
+    new_password: newPassword 
+  });
+}
 }

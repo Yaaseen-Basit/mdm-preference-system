@@ -74,4 +74,13 @@ export class AuthService {
     const u = localStorage.getItem(this.USER_KEY);
     return u ? JSON.parse(u) : null;
   }
+
+// studentRegister(data: RegisterRequest): Observable<TokenResponse> {
+//   return this.api.studentRegister(data).pipe(tap(r => this.storeAuth(r)));
+// }
+
+
+requestPasswordReset(prn: string, newPassword: string): Observable<any> {
+  return this.api.requestPasswordReset(prn, newPassword);
+}
 }

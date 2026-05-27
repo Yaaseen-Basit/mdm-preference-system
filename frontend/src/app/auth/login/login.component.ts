@@ -98,14 +98,24 @@ export class LoginComponent {
     });
   }
 
-  resetPassword(): void {
-    if (this.forgotPasswordForm.invalid) return;
-    this.loading.set(true);
 
-    setTimeout(() => {
-      this.snack.success('Password updated successfully for this session! Please login.');
+resetPassword(): void {
+  if (this.forgotPasswordForm.invalid) return;
+  this.loading.set(true);
+
+  const { prn, newPassword } = this.forgotPasswordForm.value;
+
+  this.auth.requestPasswordReset(prn, newPassword).subscribe({
+    next: () => {
+      this.snack.success('Password updated successfully! Please login.');
       this.toggleForgotPassword(false);
       this.loading.set(false);
-    }, 1000);
-  }
+    },
+    error: (e: any) => {
+      this.snack.error(e.error?.detail || 'Failed to reset password. Please verify your PRN.');
+      this.loading.set(false);
+    }
+  });
+}
+
 }
