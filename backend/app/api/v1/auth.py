@@ -7,6 +7,7 @@ from app.core.deps import get_current_user_payload
 from app.models.admin import Admin
 from app.models.student import Student
 from app.models.registry import StudentRegistry
+from app.schemas.schemas import ForgotPasswordRequest
 from app.schemas.schemas import (
     AdminLoginRequest, StudentRegisterRequest, StudentLoginRequest,
     TokenResponse, RefreshTokenRequest
@@ -75,16 +76,37 @@ def student_register(data: StudentRegisterRequest, db: Session = Depends(get_db)
         prn=student.prn,
     )
 
-
 @router.post("/student-login", response_model=TokenResponse)
 def student_login(data: StudentLoginRequest, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.email == data.email).first()
-    if not student or not verify_password(data.password, student.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    if not student.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled")
 
-    token_data = {"sub": str(student.id), "role": "student", "email": student.email, "prn": student.prn}
+    # Search student by PRN
+    student = db.query(Student).filter(
+        Student.prn == data.prn.upper()
+    ).first()
+
+    # Validate password
+    if not student or not verify_password(data.password, student.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid PRN or password"
+        )
+
+    # Check active status
+    if not student.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account disabled"
+        )
+
+    # JWT payload
+    token_data = {
+        "sub": str(student.id),
+        "role": "student",
+        "email": student.email,
+        "prn": student.prn
+    }
+
+    # Return token response
     return TokenResponse(
         access_token=create_access_token(token_data),
         refresh_token=create_refresh_token(token_data),
@@ -93,7 +115,6 @@ def student_login(data: StudentLoginRequest, db: Session = Depends(get_db)):
         full_name=student.full_name,
         prn=student.prn,
     )
-
 
 @router.post("/refresh-token", response_model=TokenResponse)
 def refresh_token(data: RefreshTokenRequest, db: Session = Depends(get_db)):
@@ -129,3 +150,28 @@ def refresh_token(data: RefreshTokenRequest, db: Session = Depends(get_db)):
 @router.post("/logout")
 def logout():
     return {"message": "Logged out successfully"}
+@router.post("/forgot-password")
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    # Search by PRN
+    student = db.query(Student).filter(
+        Student.prn == data.prn.upper()
+    ).first()
+
+    # Student not found
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="PRN not found"
+        )
+
+    # Update password
+    student.hashed_password = get_password_hash(data.new_password)
+
+    db.commit()
+
+    return {
+        "message": "Password updated successfully"
+    }

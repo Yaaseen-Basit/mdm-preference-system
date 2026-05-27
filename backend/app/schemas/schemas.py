@@ -26,9 +26,8 @@ class StudentRegisterRequest(BaseModel):
 
 
 class StudentLoginRequest(BaseModel):
-    email: EmailStr
+    prn: str
     password: str
-
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -221,3 +220,6 @@ class StudentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+class ForgotPasswordRequest(BaseModel):
+    prn: str
+    new_password: str

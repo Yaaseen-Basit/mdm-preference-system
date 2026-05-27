@@ -1,7 +1,6 @@
-
 export interface LoginRequest {
-  email?: string;     // Optional now, since admins use email
-  prn?: string;       // Added for student login
+  prn?: string;
+  email?: string;
   password: string;
 }
 
